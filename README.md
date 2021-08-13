@@ -1,3 +1,6 @@
+## 更加完善的解决方案
+> 大家可以参考这位朋友写的插件，基本上实现了大部分的html标签到word的转换：https://github.com/draco1023/poi-tl-ext
+
 # Html To Word
 ### 富文本Html转Word
 
