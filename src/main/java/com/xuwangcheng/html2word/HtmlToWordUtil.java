@@ -11,7 +11,9 @@ import com.deepoove.poi.render.RenderContext;
 import com.deepoove.poi.template.run.RunTemplate;
 import com.xuwangcheng.html2word.handler.BaseHtmlTagHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xwpf.usermodel.IBody;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -89,12 +91,12 @@ public class HtmlToWordUtil {
                         .replaceAll("&amp;", "&");
                 org.jsoup.nodes.Document htmlDoc = Jsoup.parse(html);
                 Elements nodes = htmlDoc.body().children();
-                XWPFParagraph xwpfParagraph = doc.insertNewParagraph(runTemplate.getRun());
 
                 HandlerInParams inParams = new HandlerInParams();
                 inParams.setEle(null);
                 inParams.setExtendParams(extendParams);
-                inParams.setXwpfParagraph(xwpfParagraph);
+                inParams.setXwpfParagraph(insertNewParagraph(((XWPFParagraph)runTemplate.getRun().getParent()).getBody(), doc));
+                inParams.setRun(inParams.getXwpfParagraph().createRun());
                 inParams.setDoc(doc);
 
                 ListIterator<Element> itr = nodes.listIterator();
@@ -106,6 +108,14 @@ public class HtmlToWordUtil {
         };
     }
 
+    public static XWPFParagraph insertNewParagraph(IBody iBody, NiceXWPFDocument document){
+        if (iBody instanceof XWPFTableCell) {
+            XWPFTableCell tableCell = (XWPFTableCell) iBody;
+            return tableCell.addParagraph();
+        } else {
+            return document.createParagraph();
+        }
+    }
 
     /**
      * 转换整个html内容为word内容

@@ -1,7 +1,6 @@
 package com.xuwangcheng.html2word.handler;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import com.deepoove.poi.NiceXWPFDocument;
 import com.deepoove.poi.data.MiniTableRenderData;
 import com.deepoove.poi.util.TableTools;
@@ -14,7 +13,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblLayoutType;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblLayoutType;
 
 import java.util.*;
 
@@ -33,29 +34,34 @@ public class TableTagHandler extends BaseHtmlTagHandler {
 
     @Override
     public HandlerOutParams handleHtmlElement(HandlerInParams params) {
-        XWPFParagraph prev = HtmlToWordUtil.getPrevXWPFParagraph(params.getDoc(), params.getXwpfParagraph());
-        if (prev.getRuns().size() == 0) {
-            prev.createRun();
+        IBody iBody = params.getXwpfParagraph().getBody();
+        XWPFParagraph nextParagraph = null;
+        if (iBody instanceof XWPFTableCell) {
+            XWPFTableCell tableCell = (XWPFTableCell) iBody;
+            params.setXwpfParagraph(tableCell.addParagraph());
+            params.setRun(params.getXwpfParagraph().createRun());
+            parseTableToWord(params);
+            nextParagraph = tableCell.addParagraph();
+        } else {
+            params.setXwpfParagraph(params.getDoc().createParagraph());
+            params.setRun(params.getXwpfParagraph().createRun());
+            parseTableToWord(params);
+            nextParagraph = params.getDoc().createParagraph();
         }
 
-        params.setXwpfParagraph(params.getDoc().insertNewParagraph(CollUtil.getLast(prev.getRuns())));
-        params.setRun(params.getXwpfParagraph().createRun());
-        parseTableToWord(params);
-
-        return new HandlerOutParams().setContinueItr(false);
+        return new HandlerOutParams().setXwpfParagraph(nextParagraph).setContinueItr(false);
     }
 
     /**
      * 转换表格为word内容
      * @author xuwangcheng
      * @date 2019/7/29 18:45
-     * @param params params
+     * @param inParams inParams
      */
-    private void parseTableToWord(HandlerInParams params) {
-        Element ele = params.getEle();
-        NiceXWPFDocument doc = params.getDoc();
-        XWPFRun run = params.getRun();
-
+    private void parseTableToWord(HandlerInParams inParams) {
+        Element ele = inParams.getEle();
+        NiceXWPFDocument doc = inParams.getDoc();
+        XWPFRun run = inParams.getRun();
 
         //简化表格html
         org.jsoup.nodes.Document tableDoc = Jsoup.parse(simplifyTable(ele.outerHtml()));
@@ -64,6 +70,9 @@ public class TableTagHandler extends BaseHtmlTagHandler {
 
         //创建表格
         XWPFTable xwpfTable = doc.insertNewTable(run, trList.size(), tdList.size());
+        CTTblLayoutType type = xwpfTable.getCTTbl().getTblPr().addNewTblLayout();
+        type.setType(STTblLayoutType.AUTOFIT);
+
 
         //设置样式
         TableTools.widthTable(xwpfTable, MiniTableRenderData.WIDTH_A4_FULL, tdList.size());
@@ -183,11 +192,11 @@ public class TableTagHandler extends BaseHtmlTagHandler {
                 }
 
                 HandlerInParams handlerInParams = new HandlerInParams();
-                BeanUtil.copyProperties(params, handlerInParams);
+                BeanUtil.copyProperties(inParams, handlerInParams);
 
                 handlerInParams.setEle(colElement);
                 handlerInParams.setXwpfParagraph(paragraph);
-
+                handlerInParams.setRun(paragraph.createRun());
                 HtmlToWordUtil.parseHtmlToWord(handlerInParams);
             }
         }

@@ -20,21 +20,36 @@ public class TestMain {
         // 带表格
         //String html = FileUtil.readString("table_demo.html", "utf-8");
         // 包含图片
-        String html = FileUtil.readString("demo2.html", "utf-8");
-        String html2 = FileUtil.readString("demo1.html", "utf-8");
+        String simpleText = FileUtil.readString("simple_text.html", "utf-8");
+        String simpleTable01 = FileUtil.readString("simple_table_01.html", "utf-8");
+        String simpleTable02 = FileUtil.readString("simple_table_02.html", "utf-8");
+        String mixTable = FileUtil.readString("mix_table.html", "utf-8");
+        String simpleImg = FileUtil.readString("simple_img.html", "utf-8");
+
         //配置
         Configure config = Configure.newBuilder().build();
-        config.customPolicy("resultHtml", HtmlToWordUtil.createHtmlRenderPolicy(null));
-        config.customPolicy("resultHtml2", HtmlToWordUtil.createHtmlRenderPolicy(null));
+        config.customPolicy("simpleText", HtmlToWordUtil.createHtmlRenderPolicy(null));
+        config.customPolicy("simpleTable01", HtmlToWordUtil.createHtmlRenderPolicy(null));
+        config.customPolicy("simpleTable02", HtmlToWordUtil.createHtmlRenderPolicy(null));
+        config.customPolicy("mixTable", HtmlToWordUtil.createHtmlRenderPolicy(null));
+        config.customPolicy("simpleImg", HtmlToWordUtil.createHtmlRenderPolicy(null));
 
         //创建word模板对象
         Map<String, Object> map = new HashMap<String, Object>();
-        //map.put("top", "TOPPPPP");
-        map.put("resultHtml", html);
-        map.put("resultHtml2", html2);
-        //map.put("buttom", "buttommmmmmmmmmmmmm");
+
+        map.put("simpleText", simpleText);
+        map.put("simpleTable01", simpleTable01);
+        map.put("simpleTable02", simpleTable02);
+        map.put("mixTable", mixTable);
+        map.put("simpleImg", simpleImg);
+
+        // 通用模板
         XWPFTemplate template = XWPFTemplate.compile(HtmlToWordUtil.getResourceInputStream("/out_template.docx"), config).render(map);
-        template.writeToFile("I:\\demo.docx");
+        template.writeToFile("I:\\out.docx");
+
+        // 单元格内写入
+        template = XWPFTemplate.compile(HtmlToWordUtil.getResourceInputStream("/table_cell_out_template.docx"), config).render(map);
+        template.writeToFile("I:\\table_cell_out.docx");
         template.close();
     }
 }
