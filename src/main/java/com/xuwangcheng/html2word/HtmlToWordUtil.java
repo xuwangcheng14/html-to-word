@@ -74,7 +74,6 @@ public class HtmlToWordUtil {
                         .replaceAll("&nbsp;", " ")
                         .replaceAll("\\n", "")
                         .replaceAll("&crarr;", "")
-                        .replaceAll("<br>", "\n")
                         .replaceAll("&quot;", "\"")
                         .replaceAll("&apos;", "'")
                         .replaceAll("&cent;", "￠")
