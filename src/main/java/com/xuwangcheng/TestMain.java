@@ -20,17 +20,19 @@ public class TestMain {
         // 带表格
         //String html = FileUtil.readString("table_demo.html", "utf-8");
         // 包含图片
-        String html = FileUtil.readString("img_demo.html", "utf-8");;
+        String html = FileUtil.readString("demo2.html", "utf-8");
+        String html2 = FileUtil.readString("demo1.html", "utf-8");
         //配置
         Configure config = Configure.newBuilder().build();
         config.customPolicy("resultHtml", HtmlToWordUtil.createHtmlRenderPolicy(null));
-
+        config.customPolicy("resultHtml2", HtmlToWordUtil.createHtmlRenderPolicy(null));
 
         //创建word模板对象
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("top", "TOPPPPP");
+        //map.put("top", "TOPPPPP");
         map.put("resultHtml", html);
-        map.put("buttom", "buttommmmmmmmmmmmmm");
+        map.put("resultHtml2", html2);
+        //map.put("buttom", "buttommmmmmmmmmmmmm");
         XWPFTemplate template = XWPFTemplate.compile(HtmlToWordUtil.getResourceInputStream("/out_template.docx"), config).render(map);
         template.writeToFile("I:\\demo.docx");
         template.close();
