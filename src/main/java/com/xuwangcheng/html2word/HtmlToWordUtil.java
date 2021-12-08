@@ -145,7 +145,7 @@ public class HtmlToWordUtil {
             return null;
         }
         for (String key:handlerMap.keySet()) {
-            if (key.equalsIgnoreCase(tagName) || tagName.matches(key)) {
+            if (key.equalsIgnoreCase(tagName) || tagName.toUpperCase().matches(key.toUpperCase())) {
                 return handlerMap.get(key);
             }
         }

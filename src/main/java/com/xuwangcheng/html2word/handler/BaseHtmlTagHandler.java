@@ -12,7 +12,7 @@ import com.xuwangcheng.html2word.HandlerOutParams;
 public abstract class BaseHtmlTagHandler {
 
     /**
-     *  匹配的html标签名称，如果匹配多个，请使用正则表达式，例如(?!)(span|p)
+     *  匹配的html标签名称，如果匹配多个，请使用正则表达式，例如span|p
      * @author xuwangcheng
      * @date 2021/7/12 10:24
      * @param
